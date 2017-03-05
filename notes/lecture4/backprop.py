@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 # Backpropogation notes
 
@@ -104,3 +105,15 @@ print(dfa6 * da6a5 * da5a4 * da4a3 * da3a2 * da2a0 * da0x0)
 # this is the effect of x0 on the final output
 
 
+
+# Vectorized Operations
+W = np.random.randn(5,10)
+
+
+
+
+############################ concluding notes ############################
+## more neurons are always better while creating networks, but they have to be regularized propoerly
+## Depth vs Height -> no good choice
+## Comon activation functions - TanH, ReLU etc
+## usually only one activation function is used for all neurons
