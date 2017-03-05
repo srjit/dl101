@@ -1,3 +1,3 @@
 # tf101
 
-tensorflow scripts
+deep learning - notes and scripts
