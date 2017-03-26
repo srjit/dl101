@@ -1,0 +1,30 @@
+
+
+
+Representations :
+
+
+1)Bag of Words
+2) Statistical similarity - Represent a word by relation to its neighbours
+   * co-occurance matrix
+   * Latent semantic analysis
+   *
+
+
+another method - predict the surrounding words of every word - does in a very online way - captures correlation stats.
+
+
+word2vec :
+
+window size -n : each given word n, predict n words to the left and n words to the right
+objective : maxmize the log probability of a group of words, given a center word
+
+Slides : http://cs224d.stanford.edu/lectures/CS224d-Lecture2.pdf :: page 23
+
+P(o | c) -> probability of outward word o centered around the word c
+
+u -> outside word vector
+v -> inside word vetor
+
+
+

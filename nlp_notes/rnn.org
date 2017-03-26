@@ -1,0 +1,38 @@
+
+
+things to do while implementing the network : 
+
+1) Gradient checks are awesome
+   check gradients for a small value of epsilon and estimate the derivatives
+
+Lecture 6 slides page 24
+
+2) only softmax on a standard input
+3) backprop into the vectors and softmax
+4) add a single unit single hidden layer
+5) add a multi unit single hidden layer
+
+
+weight initialization :
+
+initialize weights to 0 -> works good if activation is tanH 
+
+
+How does parallelization occur ? 
+ 
+   >> explained in lecture >> parallelization of matrix multiplication
+
+advantages of using mini batches
+
+to look - momentum update
+          ADAM update
+
+adagrad - each parameter gets a learning rate
+
+
+why recurrent ?
+
+same weights are used in computation at each layer
+
+
+
