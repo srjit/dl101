@@ -31,5 +31,21 @@ X, y = init_toy_data()
 scores = net.loss(X, y)
 
 
+correct_scores = np.asarray([
+  [-0.81233741, -1.27654624, -0.70335995],
+  [-0.17129677, -1.18803311, -0.47310444],
+  [-0.51590475, -1.01354314, -0.8504215 ],
+  [-0.15419291, -0.48629638, -0.52901952],
+  [-0.00618733, -0.12435261, -0.15226949]])
+print(correct_scores)
+
+# The difference should be very small. We get < 1e-7
+net = init_toy_model()
+stats = net.train(X, y, X, y, learning_rate=1e-1, reg=1e-5, num_iters=100, verbose=False)
 
 
+plt.plot(stats['loss_history'])
+plt.xlabel('iteration')
+plt.ylabel('training loss')
+plt.title('Training Loss history')
+plt.show()
