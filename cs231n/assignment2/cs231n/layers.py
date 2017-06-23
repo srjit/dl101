@@ -104,6 +104,14 @@ def relu_forward(x):
 
 def relu_backward(dout, cache):
     """
+
+    Differential of ReLU is 1 for positive numbers and 0 for negative numbers  ::
+
+    http://kawahara.ca/what-is-the-derivative-of-relu/
+
+    
+    
+    
     Computes the backward pass for a layer of rectified linear units (ReLUs).
 
     Input:
