@@ -16,11 +16,11 @@ def affine_relu_forward(x, w, b):
     - cache: Object to give to the backward pass
     """
     a, fc_cache = affine_forward(x, w, b)
-    import ipdb
-    ipdb.set_trace()
+    # import ipdb
+    # ipdb.set_trace()
     out, relu_cache = relu_forward(a)
     cache = (fc_cache, relu_cache)
-    ipdb.set_trace()
+    # ipdb.set_trace()
     return out, cache
 
 

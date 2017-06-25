@@ -13,10 +13,6 @@ plt.rcParams['image.interpolation'] = 'nearest'
 plt.rcParams['image.cmap'] = 'gray'
 
 
-__author__ = "Sreejith Sreekumar"
-__email__ = "sreekumar.s@husky.neu.edu"
-__version__ = "0.0.1"
-
 def rel_error(x, y):
     return np.max(np.abs(x - y) / (np.maximum(1e-8, np.abs(x) + np.abs(y))))
 
