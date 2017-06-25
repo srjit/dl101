@@ -29,7 +29,7 @@ def affine_forward(x, w, b):
     row_dim = x.shape[0]
     col_dim = np.prod(x.shape[1:])
 
-    
+
 
     x_reshaped = x.reshape(row_dim, col_dim)
     out = np.dot(x_reshaped, w) + b
@@ -68,7 +68,7 @@ def affine_backward(dout, cache):
 
     ## why are we finding two gradients - wrt x and wrt w
     ## find out these equations
-    
+
     dw = x_reshaped.T.dot(dout)
     dx = dout.dot(w.T).reshape(x.shape)
     db = np.sum(dout, axis = 0)
@@ -95,6 +95,8 @@ def relu_forward(x):
     # TODO: Implement the ReLU forward pass.                                  #
     ###########################################################################
     x = np.maximum(0, x)
+    import pdb
+    pdb.set_trace()
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -109,9 +111,9 @@ def relu_backward(dout, cache):
 
     http://kawahara.ca/what-is-the-derivative-of-relu/
 
-    
-    
-    
+
+
+
     Computes the backward pass for a layer of rectified linear units (ReLUs).
 
     Input:
