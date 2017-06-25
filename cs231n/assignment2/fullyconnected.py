@@ -157,8 +157,6 @@ print('dx error: ', rel_error(dx_num, dx))
 
 
 ## Two Layer Network
-
-
 np.random.seed(231)
 N, D, H, C = 3, 5, 50, 7
 X = np.random.randn(N, D)
@@ -184,6 +182,7 @@ model.params['W2'] = np.linspace(-0.3, 0.4, num=H*C).reshape(H, C)
 model.params['b2'] = np.linspace(-0.9, 0.1, num=C)
 X = np.linspace(-5.5, 4.5, num=N*D).reshape(D, N).T
 scores = model.loss(X)
+
 correct_scores = np.asarray(
   [[11.53165108,  12.2917344,   13.05181771,  13.81190102,  14.57198434, 15.33206765,  16.09215096],
    [12.05769098,  12.74614105,  13.43459113,  14.1230412,   14.81149128, 15.49994135,  16.18839143],
