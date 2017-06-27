@@ -210,3 +210,25 @@ for reg in [0.0, 0.7]:
 		f = lambda _: model.loss(X, y)[0]
 		grad_num = eval_numerical_gradient(f, model.params[name], verbose=False)
 		print('%s relative error: %.2e' % (name, rel_error(grad_num, grads[name])))
+
+
+
+
+## Multi layer Network
+np.random.seed(231)
+N, D, H1, H2, C = 2, 15, 20, 30, 10
+X = np.random.randn(N, D)
+y = np.random.randint(C, size=(N,))
+
+# for reg in [0, 3.14]:
+#   print('Running check with reg = ', reg)
+#   model = FullyConnectedNet([H1, H2], input_dim=D, num_classes=C,
+#                             reg=reg, weight_scale=5e-2, dtype=np.float64)
+
+#   loss, grads = model.loss(X, y)
+#   print('Initial loss: ', loss)
+
+#   for name in sorted(grads):
+#     f = lambda _: model.loss(X, y)[0]
+#     grad_num = eval_numerical_gradient(f, model.params[name], verbose=False, h=1e-5)
+#     print('%s relative error: %.2e' % (name, rel_error(grad_num, grads[name])))
