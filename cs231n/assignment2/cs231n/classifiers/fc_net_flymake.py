@@ -279,7 +279,7 @@ class FullyConnectedNet(object):
         self.batchnorm_cache = {}
         scores = X
 
-        for i in range(1, self.num_layers+1):
+        for i in range(self.num_layers+1):
 
             if i == self.num_layers:
                 ## find scores and update caches
@@ -320,21 +320,12 @@ class FullyConnectedNet(object):
         ############################################################################
 
         loss, der = softmax_loss(y, scores)
-        for i in range(self.num_layers, 0, -1):
-            loss += 0.5*self.reg*np.sum(self.params['W' + str(i)]**2)
-            if i == self.num_layers:
-                der, grads['W' + str(i)], grads['b' + str(i)] = affine_backward(der, self.cache['c' + str(i)])
-            else:
-                if self.use_dropout:
-                    der = dropout_backward(der, self.dropout_cache['dropout' + str(i)])
+
+        lkafmdk
 
 
-
-                der, grads['W' + str(i)], grads['b' + str(i)] = affine_relu_backward(der, self.cache['c' + str(i)])
-
-            ## updating the gradients - multiply with reg
-            grads['W' + str(i)] = self.reg * self.params['W' + str(i)]
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
+
         return loss, grads

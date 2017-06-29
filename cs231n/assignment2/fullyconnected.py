@@ -1,12 +1,14 @@
 # As usual, a bit of setup
 from __future__ import print_function
-import time
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 from cs231n.classifiers.fc_net import *
 from cs231n.data_utils import get_CIFAR10_data
 from cs231n.gradient_check import eval_numerical_gradient, eval_numerical_gradient_array
-from cs231n.solver import Solver
+from cs231n.layer_utils import affine_relu_forward, affine_relu_backward
+
 
 plt.rcParams['figure.figsize'] = (10.0, 8.0) # set default size of plots
 plt.rcParams['image.interpolation'] = 'nearest'
@@ -27,7 +29,6 @@ for k, v in list(data.items()):
 ## Affine forward	  #
 
 # Test the affine_forward function
-
 num_inputs = 2
 input_shape = (4, 5, 6)
 output_dim = 3
@@ -107,7 +108,6 @@ print('dx error: ', rel_error(dx_num, dx))
 
 ## Sandwich Layers
 
-from cs231n.layer_utils import affine_relu_forward, affine_relu_backward
 np.random.seed(231)
 x = np.random.randn(2, 3, 4)
 w = np.random.randn(12, 10)
@@ -220,13 +220,16 @@ N, D, H1, H2, C = 2, 15, 20, 30, 10
 X = np.random.randn(N, D)
 y = np.random.randint(C, size=(N,))
 
-# for reg in [0, 3.14]:
-#   print('Running check with reg = ', reg)
-#   model = FullyConnectedNet([H1, H2], input_dim=D, num_classes=C,
-#                             reg=reg, weight_scale=5e-2, dtype=np.float64)
+for reg in [0, 3.14]:
+  print('Running check with reg = ', reg)
+  model = FullyConnectedNet([H1, H2], input_dim=D, num_classes=C,
+                            reg=reg, weight_scale=5e-2, dtype=np.float64)
 
-#   loss, grads = model.loss(X, y)
-#   print('Initial loss: ', loss)
+  loss, grads = model.loss(X, y)
+  print('Initial loss: ', loss)
+
+
+
 
 #   for name in sorted(grads):
 #     f = lambda _: model.loss(X, y)[0]
