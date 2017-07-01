@@ -24,7 +24,7 @@ with tf.device(device_type):
             'wc1' : tf.Variable(tf.truncated_normal([3,3,1,64], stddev = 0.1)),
             'wc2' : tf.Variable(tf.truncated_normal([3,3,64,128], stddev = 0.1)),
             'wd1' : tf.Variable(tf.truncated_normal([7*7*128,1024], stddev = 0.1)),
-            'wd1' : tf.Variable(tf.truncated_normal([1024, n_output], stddev = 0.1)),
+            'wd2' : tf.Variable(tf.truncated_normal([1024, n_output], stddev = 0.1)),
             }
 
     biases = {
@@ -88,10 +88,11 @@ y = tf.placeholder(tf.float32, [None, n_output])
 keepratio = tf.placeholder(tf.float32)
 
 
+
 ## functions
 with tf.device(device_type):
 	_pred = conv_basic(x, weights, biases, keepratio)['out']
-	cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(_pred, y))
+	cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=_pred, labels=y))
 
 	# optimizer
 	optm = tf.train.AdamOptimizer(learning_rate=0.001).minimize(cost)
@@ -124,8 +125,8 @@ if do_train == 1:
         avg_cost = 0
         total_batch = int(mnist.train.num_examples/batch_size)
 
-        for i in total_batch:
-            batch_xs, batch_ys = mnist.train_next_batch(batch_size)
+        for i in range(total_batch):
+            batch_xs, batch_ys = mnist.train.next_batch(batch_size)
 
             # Fit training used batch data
             sess.run(optm, feed_dict={x: batch_xs, y: batch_ys, keepratio:0.7})
