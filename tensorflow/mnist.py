@@ -26,8 +26,6 @@ print("Plotting some images from the dataset")
 nsample = 5
 randidx = np.random.randint(trainimg.shape[0], size=nsample)
 
-
-
 for i in randidx:
 	curr_img   = np.reshape(trainimg[i, :], (28, 28)) # 28 by 28 matrix
 	curr_label = np.argmax(trainlabel[i, :]) # Label
@@ -37,3 +35,16 @@ for i in randidx:
 	plt.show()
 	print ("" + str(i) + "th Training Data "
             + "Label is " + str(curr_label))
+
+
+
+
+
+## Learning in batches
+batch_size = 100
+batch_x, batch_y = mnist.train.next_batch(batch_size)
+
+
+## collecting the images from random indices
+random_indices = np.random.randint(trainimg.shape[0], size=batch_size)
+sample = trainimg[random_indices, :]

@@ -1,0 +1,119 @@
+
+fullyconnected.py,22
+def rel_error(16,497
+
+cs231n/optim.py,101
+def update(9,311
+def sgd(33,1172
+def sgd_momentum(47,1472
+def rmsprop(78,2682
+def adam(110,4075
+
+cs231n/vis_utils.py,68
+def visualize_grid(7,109
+def vis_grid(41,1322
+def vis_nn(59,1781
+
+cs231n/im2col.py,84
+def get_im2col_indices(5,48
+def im2col_indices(26,910
+def col2im_indices(41,1436
+
+cs231n/classifiers/fc_net.py,151
+class TwoLayerNet(9,138
+	def __init__(26,765
+	def loss(60,2499
+class FullyConnectedNet(139,5520
+    def __init__(155,6167
+    def loss(246,10829
+
+cs231n/classifiers/cnn.py,78
+class ThreeLayerConvNet(9,144
+    def __init__(20,502
+    def loss(60,2639
+
+cs231n/classifiers/fc_net_flymake.py,151
+class TwoLayerNet(9,138
+	def __init__(26,765
+	def loss(60,2499
+class FullyConnectedNet(139,5520
+    def __init__(155,6167
+    def loss(246,10829
+
+cs231n/layer_utils.py,267
+def affine_relu_forward(6,68
+def affine_relu_backward(25,549
+def conv_relu_forward(35,805
+def conv_relu_backward(53,1331
+def conv_bn_relu_forward(63,1591
+def conv_bn_relu_backward(71,1901
+def conv_relu_pool_forward(79,2185
+def conv_relu_pool_backward(99,2856
+
+cs231n/gradient_check.py,195
+def eval_numerical_gradient(8,149
+def eval_numerical_gradient_array(39,1131
+def eval_numerical_gradient_blobs(61,1705
+def eval_numerical_gradient_net(103,2993
+def grad_check_sparse(108,3164
+
+cs231n/data_utils.py,198
+def load_pickle(10,182
+def load_CIFAR_batch(18,451
+def load_CIFAR10(28,772
+def get_CIFAR10_data(44,1177
+def load_tiny_imagenet(86,2563
+def load_models(214,7588
+def load_imagenet_val(237,8333
+
+cs231n/fast_layers.py,365
+def conv_forward_im2col(14,416
+def conv_forward_strides(43,1504
+def conv_backward_strides(87,2948
+def conv_backward_im2col(107,3526
+def max_pool_forward_fast(133,4413
+def max_pool_backward_fast(157,5363
+def max_pool_forward_reshape(173,5900
+def max_pool_backward_reshape(194,6643
+def max_pool_forward_im2col(225,8010
+def max_pool_backward_im2col(252,8987
+
+cs231n/solver.py,188
+class Solver(16,262
+    def __init__(84,3082
+    def _reset(152,6368
+    def _step(172,6978
+    def _save_checkpoint(196,7813
+    def check_accuracy(218,8649
+    def train(259,9977
+
+cs231n/layers.py,609
+def affine_forward(5,48
+def affine_backward(44,1480
+def relu_forward(82,2810
+def relu_backward(105,3608
+def batchnorm_forward(138,4657
+def batchnorm_backward(226,9204
+def batchnorm_backward_alt(256,10477
+def dropout_forward(286,11987
+def dropout_backward(336,14188
+def conv_forward_naive(361,15066
+def conv_backward_naive(397,16670
+def max_pool_forward_naive(421,17600
+def max_pool_backward_naive(448,18650
+def spatial_batchnorm_forward(470,19461
+def spatial_batchnorm_backward(509,21304
+def svm_loss(539,22652
+      class for 545,22845
+def softmax_loss(566,23456
+      class for 572,23640
+
+cs231n/setup.py,0
+
+cs231n/classifiers/__init__.py,0
+
+cs231n/__init__.py,0
+
+sample.py,0
+
+a.py,0
