@@ -138,8 +138,8 @@ if do_train == 1:
             print ("Epoch: %03d/%03d cost: %.9f" % (epoch, training_epochs, avg_cost))
             train_acc = sess.run(accr, feed_dict={x: batch_xs, y: batch_ys, keepratio:1.})
             print (" Training accuracy: %.3f" % (train_acc))
-            test_acc = sess.run(accr, feed_dict={x: testimg, y: testlabel, keepratio:1.})
-            print (" Test accuracy: %.3f" % (test_acc))
+            # test_acc = sess.run(accr, feed_dict={x: testimg, y: testlabel, keepratio:1.})
+            # print (" Test accuracy: %.3f" % (test_acc))
 
         # Save Net
         if epoch % save_step == 0:
