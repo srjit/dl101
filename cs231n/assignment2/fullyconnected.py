@@ -26,7 +26,7 @@ for k, v in list(data.items()):
 
 
 
-## Affine forward	  #
+# Affine forward	  #
 
 # Test the affine_forward function
 num_inputs = 2
@@ -74,7 +74,7 @@ print('db error: ', rel_error(db_num, db))
 
 
 
-## ReLU Forward
+# ReLU Forward
 
 # Test the relu_forward function
 
@@ -90,7 +90,7 @@ print('Testing relu_forward function:')
 print('difference: ', rel_error(out, correct_out))
 
 
-## ReLU Backward
+# ReLU Backward
 
 np.random.seed(231)
 x = np.random.randn(10, 10)
@@ -106,7 +106,7 @@ print('Testing relu_backward function:')
 print('dx error: ', rel_error(dx_num, dx))
 
 
-## Sandwich Layers
+# Sandwich Layers
 
 np.random.seed(231)
 x = np.random.randn(2, 3, 4)
@@ -128,7 +128,7 @@ print('db error: ', rel_error(db_num, db))
 
 
 
-## Loss Layers - Softmax and SVM
+# Loss Layers - Softmax and SVM
 
 np.random.seed(231)
 num_classes, num_inputs = 10, 50
@@ -156,7 +156,7 @@ print('dx error: ', rel_error(dx_num, dx))
 
 
 
-## Two Layer Network
+# Two Layer Network
 np.random.seed(231)
 N, D, H, C = 3, 5, 50, 7
 X = np.random.randn(N, D)
@@ -214,7 +214,7 @@ for reg in [0.0, 0.7]:
 
 
 
-## Multi layer Network
+# Multi layer Network
 np.random.seed(231)
 N, D, H1, H2, C = 2, 15, 20, 30, 10
 X = np.random.randn(N, D)
