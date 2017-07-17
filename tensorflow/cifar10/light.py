@@ -27,12 +27,12 @@ loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(
                           labels=labels_placeholder))
 
 learning_rate = 0.01
-train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
+train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss)
 
 correct_prediction = tf.equal(tf.argmax(logits, 1), labels_placeholder)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-max_steps = 100000
+max_steps = 300000
 
 batch_size = 200
 
@@ -58,7 +58,3 @@ with tf.Session() as sess:
                                                               train_accuracy))
         sess.run(train_step, feed_dict={images_placeholder: images_batch,
                                         labels_placeholder: labels_batch})
-
-        
-
-
