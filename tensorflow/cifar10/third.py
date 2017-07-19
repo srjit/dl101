@@ -27,7 +27,6 @@ if not isdir(cifar10_dataset_folder_path):
 
 
         
-
 import helper
 import numpy as np
 
@@ -95,19 +94,32 @@ def layers(features, num_ops_fc):
         activation=tf.nn.relu)
 
     # output - 32 * 32 *  64
-    #add max pooling
+    #add max poppoling
     pool1 = tf.layers.max_pooling2d(
         inputs=conv1,
         pool_size=[2, 2],
         strides=2)
 
+    conv2= tf.layers.conv2d(
+        inputs=pool1,
+        filters=32,
+        kernel_size=[5, 5],
+        padding="same",
+        activation=tf.nn.relu)
 
-    pool1_flat = tf.reshape(pool1, [-1, 16 * 16 * 64])
 
-    shape = pool1_flat.get_shape().as_list()
+    pool2 = tf.layers.max_pooling2d(
+        inputs=conv2,
+        pool_size=[2, 2],
+        strides=2)
+    
+
+    pool2_flat = tf.reshape(pool2, [-1, 8 * 8 * 32])
+
+    shape = pool2_flat.get_shape().as_list()
     W = tf.Variable(tf.random_normal([shape[-1], num_ops_fc], stddev=0.1))
     b = tf.Variable(tf.zeros(num_ops_fc)) + 0.11
-    fc1 = tf.nn.relu(tf.add(tf.matmul(pool1_flat, W), b))
+    fc1 = tf.nn.relu(tf.add(tf.matmul(pool2_flat, W), b))
 
     shape = fc1.get_shape().as_list()
     W = tf.Variable(tf.random_normal([shape[-1], num_classes]))
@@ -183,9 +195,6 @@ keep_probability = 0.5
 #             train_neural_network(sess, optimizer, keep_probability, batch_features, batch_labels)
 #         print('Epoch {:>2}, CIFAR-10 Batch {}:  '.format(epoch + 1, batch_i), end='')
 #         print_stats(sess, batch_features, batch_labels, cost, accuracy)
-
-
-        
     
 save_model_path = './image_classification'
 
@@ -210,6 +219,4 @@ with tf.Session() as sess:
 
 
 
-
-
-    
+#####################################################

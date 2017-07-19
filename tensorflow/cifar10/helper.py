@@ -87,7 +87,7 @@ def preprocess_and_save_data(cifar10_dataset_folder_path, normalize, one_hot_enc
             labels[:-validation_count],
             'preprocess_batch_' + str(batch_i) + '.p')
 
-        # Use a portion of training batch for validation
+       # Use a portion of training batch for validation
         valid_features.extend(features[-validation_count:])
         valid_labels.extend(labels[-validation_count:])
 
