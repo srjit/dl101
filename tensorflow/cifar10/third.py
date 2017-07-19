@@ -121,7 +121,12 @@ def layers(features, num_ops_fc):
     b = tf.Variable(tf.zeros(num_ops_fc)) + 0.11
     fc1 = tf.nn.relu(tf.add(tf.matmul(pool2_flat, W), b))
 
-    shape = fc1.get_shape().as_list()
+    dropout = tf.layers.dropout(inputs=fc1,
+                                rate=0.4,
+                                training=True)
+    
+
+    shape = dropout.get_shape().as_list()
     W = tf.Variable(tf.random_normal([shape[-1], num_classes]))
     b = tf.Variable(tf.zeros(num_classes))
     
@@ -210,7 +215,7 @@ with tf.Session() as sess:
         for batch_i in range(1, n_batches + 1):
             for batch_features, batch_labels in helper.load_preprocess_training_batch(batch_i, batch_size):
                 train_neural_network(sess, optimizer, keep_probability, batch_features, batch_labels)
-            print('Epoch {:>2}, CIFAR-10 Batch {}:  '.format(epoch + 1, batch_i), end='')
+            print('Epoch {:>2}, Batch {}:  '.format(epoch + 1, batch_i), end='')
             print_stats(sess, batch_features, batch_labels, cost, accuracy)
             
     # Save Model
