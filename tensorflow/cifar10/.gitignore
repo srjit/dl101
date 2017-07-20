@@ -1,0 +1,7 @@
+*.p
+.projectile
+cifar-10-python.tar.gz
+checkpoint
+checkpoints
+TAGS
+*/TAGS
