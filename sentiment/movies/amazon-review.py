@@ -100,27 +100,3 @@ input_size =  len(data)
 
 # #the lstm
 # import tensorflow as tf
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
