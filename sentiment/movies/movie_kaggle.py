@@ -48,27 +48,28 @@ def get_vector(word):
         invalid_words.append(word)
         return limit
 
-wordVectors = [model[word] for word in wordslist]
+wordvectors = [get_vector(word) for word in wordslist]
+
+#remove model from memory
+import gc
+del model
+gc.collect()
 
 # we have to remove invalid words from going into tf.embedding_lookup 's sentence input
-word_vectors = {}
+
 
 sequence_len = 150
 # testing for one file
 
-
-
 #create wordvectors for every word in the vocabulary using word2vec and keep it in an array
-
-
-
 def get_vectors_of_sentence(sentence):
-
     def get_index(word):
+        if word in invalid_words:
+            return len(wordslist)
         try:
-            return vocabulary[word]
+            return wordslist.index(word)
         except:
-            return len(vocabulary)
+            return len(wordslist)
     
     words = sentence.split()
     doc_vec = np.zeros(sequence_len)
@@ -76,3 +77,4 @@ def get_vectors_of_sentence(sentence):
 
 # build vocabulary now
 data["doc_inv_vocab"] = data["review"].apply(lambda x: get_vectors_of_sentence(x))
+
