@@ -73,7 +73,12 @@ def get_vectors_of_sentence(sentence):
     
     words = sentence.split()
     doc_vec = np.zeros(sequence_len)
-    return [get_index(word) for word in words][:sequence_len]
+    sequence =  [get_index(word) for word in words][:sequence_len]
+    if(len(sequence) < sequence_len):
+        sequence[len(sequence):sequence_len] = [0] * (sequence_len - len(sequence))
+
+    return np.asarray(sequence)
+
 
 # build vocabulary now
 data["encoded_review"] = data["review"].apply(lambda x: get_vectors_of_sentence(x))
@@ -83,20 +88,64 @@ data["label"] = data["sentiment"].apply(lambda x: [1, 0] if x == '__label__2' el
 
 batch_size = 100
 input_size =  len(data)
+num_classes = 2
+word_vector_length = 300
+lstmunits = 64
 
 # helper functions
-# from random import randint
-# def get_train_batch():
-#     arr = np.zeros([batchSize, maxSeqLength])
+from random import randint
+def get_train_batch():
 
-#     start_index = randint(input_size)
-#     end_index = start_index + batch_size
+    start_index = randint(0, input_size)
+    end_index = start_index + batch_size
 
-#     batch_X = data['encoded_review'][start_index: end_index]
-#     batch_Y = data['label'][start_index: end_index]
+    batch_X = (data['encoded_review'][start_index: end_index]).as_matrix()
+    batch_Y = data['label'][start_index: end_index]
 
-#     return batch_X, batch_Y
+    return batch_X, batch_Y
     
 
-# #the lstm
-# import tensorflow as tf
+#testing a sample of the encoded data
+sample, labels = get_train_batch()
+
+
+#lstm
+import tensorflow as tf
+tf.reset_default_graph()
+
+input_data = tf.placeholder(tf.int32, [batch_size, sequence_length])
+labels = tf.placeholder(tf.float32, [batch_size, num_classes])
+
+
+#input_data_with_embeddings = tf.placeholder(tf.zeros([batch_size, sequence_length, word_vector_length]), dtype=tf.float32)
+data = tf.nn.embedding_lookup(wordvectors, input_data)
+
+lstmcell = tf.contrib.rnn.BasicLSTMCell(lstmunits)
+lstmcell = tf.contrib.rnn.DropoutWrapper(cell=lstmcell, output_keep_prob=0.75)
+value, _ = tf.nn.dynamic_rnn(lstmCell, data, dtype=tf.float32)
+
+weight = tf.Variable(tf.truncated_normal([lstmunits, num_classes]))
+bias = tf.Variable(tf.constant(0.1, shape=[num_classes]))
+value = tf.transpose(value, [1, 0, 2])
+last = tf.gather(value, int(value.get_shape()[0]) - 1)
+prediction = (tf.matmul(last, weight) + bias)
+
+
+correctpred = tf.equal(tf.argmax(prediction,1), tf.argmax(labels,1))
+accuracy = tf.reduce_mean(tf.cast(correctpred, tf.float32))
+
+loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=labels))
+optimizer = tf.train.AdamOptimizer().minimize(loss)
+
+sess = tf.InteractiveSession()
+saver = tf.train.Saver()
+sess.run(tf.global_variables_initializer())
+
+for i in range(iterations):
+
+   #next batch
+    
+   nextbatch, nextbatchlabels = get_train_batch();
+   sess.run(optimizer, {input_data: nextbatch, labels: nextbatchlabels})
+
+
