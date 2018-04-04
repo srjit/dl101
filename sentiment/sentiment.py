@@ -164,17 +164,18 @@ tf.summary.scalar('Loss', loss)
 tf.summary.scalar('Accuracy', accuracy)
 merged = tf.summary.merge_all()
 logdir = "tensorboard/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "/"
-writer = tf.summary.FileWriter(logdir, sess.graph)
 
 sess = tf.InteractiveSession()
+writer = tf.summary.FileWriter(logdir, sess.graph)
 saver = tf.train.Saver()
 sess.run(tf.global_variables_initializer())
-
-print "!!!"
 
 for i in range(iterations):
    #Next Batch of reviews
    nextBatch, nextBatchLabels = getTrainBatch();
+
+   import ipdb
+   ipdb.set_trace()
 
    sess.run(optimizer, {input_data: nextBatch, labels: nextBatchLabels})
    print("Epoch", i+1)

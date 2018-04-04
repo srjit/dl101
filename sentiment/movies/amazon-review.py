@@ -2,6 +2,7 @@ import pandas as pd
 import gensim.models.keyedvectors as word2vec
 import string
 import numpy as np
+from functools import reduce
 
 #input_file = "train.ft.txt"
 input_file = "sample.txt"
@@ -15,7 +16,9 @@ with open(input_file) as f:
         sentiment = line.split(" ")[0]
         review = line.replace(sentiment, "").strip()
 
-        plane_string = review.lower().translate(None, string.punctuation)
+        translator=str.maketrans('','',string.punctuation)
+        plane_string = review.lower().translate(translator)
+        
         words = plane_string.split()
         lengths.append(len(words))
         _vocabulary = _vocabulary.union(words)
@@ -86,7 +89,7 @@ data["encoded_review"] = data["review"].apply(lambda x: get_vectors_of_sentence(
 data["label"] = data["sentiment"].apply(lambda x: [1, 0] if x == '__label__2' else [0, 1])
 
 
-batch_size = 100
+batch_size = 5
 input_size =  len(data)
 num_classes = 2
 word_vector_length = 300
@@ -96,11 +99,16 @@ lstmunits = 64
 from random import randint
 def get_train_batch():
 
-    start_index = randint(0, input_size)
+    start_index = randint(0, input_size - batch_size)
     end_index = start_index + batch_size
 
-    batch_X = (data['encoded_review'][start_index: end_index]).as_matrix()
+    arr = np.zeros([batch_size, sequence_len])
+
+    batch_X = (data['encoded_review'][start_index: end_index]).tolist()
     batch_Y = data['label'][start_index: end_index]
+
+    for i in range(batch_size):
+        arr[i] = batch_X[i]
 
     return batch_X, batch_Y
     
@@ -113,7 +121,7 @@ sample, labels = get_train_batch()
 import tensorflow as tf
 tf.reset_default_graph()
 
-input_data = tf.placeholder(tf.int32, [batch_size, sequence_length])
+input_data = tf.placeholder(tf.int32, [batch_size, sequence_len])
 labels = tf.placeholder(tf.float32, [batch_size, num_classes])
 
 
