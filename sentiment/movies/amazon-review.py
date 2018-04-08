@@ -39,7 +39,6 @@ max_length = max(lengths)
 median_length = np.median(lengths)
 
 
-
 headers = ['review','sentiment']        
 data = pd.DataFrame(lines, columns=headers)
 
