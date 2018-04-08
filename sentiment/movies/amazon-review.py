@@ -3,6 +3,7 @@ import gensim.models.keyedvectors as word2vec
 import string
 import numpy as np
 from functools import reduce
+import datetime
 
 #input_file = "train.ft.txt"
 input_file = "sample.txt"
@@ -37,7 +38,6 @@ data = pd.DataFrame(lines, columns=headers)
 
 # we need the indices of words - so making it a list
 wordslist = list(_vocabulary)
-wordVectors = []
 limit = len(wordslist)
 
 from gensim.models import Word2Vec
@@ -51,7 +51,12 @@ def get_vector(word):
         invalid_words.append(word)
         return limit
 
-wordvectors = [get_vector(word) for word in wordslist]
+wordvectors = np.zeros([len(wordslist), 300], dtype=np.float32)
+
+for i, word in enumerate(wordslist):
+    wordvectors[i] = get_vector(word)
+
+# wordvectors = np.asarray([get_vector(word) for word in wordslist])
 
 #remove model from memory
 import gc
@@ -89,11 +94,13 @@ data["encoded_review"] = data["review"].apply(lambda x: get_vectors_of_sentence(
 data["label"] = data["sentiment"].apply(lambda x: [1, 0] if x == '__label__2' else [0, 1])
 
 
-batch_size = 5
-input_size =  len(data)
 num_classes = 2
 word_vector_length = 300
 lstmunits = 64
+batch_size = 24
+iterations = 100000
+numDimensions = 300
+input_size = 100
 
 # helper functions
 from random import randint
@@ -110,50 +117,69 @@ def get_train_batch():
     for i in range(batch_size):
         arr[i] = batch_X[i]
 
-    return batch_X, batch_Y
+    return arr, batch_Y
     
 
 #testing a sample of the encoded data
 sample, labels = get_train_batch()
 
 
-#lstm
 import tensorflow as tf
 tf.reset_default_graph()
 
-input_data = tf.placeholder(tf.int32, [batch_size, sequence_len])
 labels = tf.placeholder(tf.float32, [batch_size, num_classes])
+input_data = tf.placeholder(tf.int32, [batch_size, sequence_len])
 
+data = tf.Variable(tf.zeros([batch_size, sequence_len, numDimensions]),dtype=tf.float32)
+data = tf.nn.embedding_lookup(wordvectors,input_data)
 
-#input_data_with_embeddings = tf.placeholder(tf.zeros([batch_size, sequence_length, word_vector_length]), dtype=tf.float32)
-data = tf.nn.embedding_lookup(wordvectors, input_data)
+import ipdb
+ipdb.set_trace()
 
-lstmcell = tf.contrib.rnn.BasicLSTMCell(lstmunits)
-lstmcell = tf.contrib.rnn.DropoutWrapper(cell=lstmcell, output_keep_prob=0.75)
-value, _ = tf.nn.dynamic_rnn(lstmCell, data, dtype=tf.float32)
+#lstm layer
+lstm_cell = tf.contrib.rnn.BasicLSTMCell(lstmunits)
+lstm_cell = tf.contrib.rnn.DropoutWrapper(cell=lstm_cell, output_keep_prob=0.75)
+value, _ = tf.nn.dynamic_rnn(lstm_cell, data, dtype=tf.float32)
 
-weight = tf.Variable(tf.truncated_normal([lstmunits, num_classes]))
+weight = tf.Variable(tf.truncated_normal([lstmunits, num_classes]), dtype=tf.float32)
 bias = tf.Variable(tf.constant(0.1, shape=[num_classes]))
 value = tf.transpose(value, [1, 0, 2])
 last = tf.gather(value, int(value.get_shape()[0]) - 1)
 prediction = (tf.matmul(last, weight) + bias)
 
 
-correctpred = tf.equal(tf.argmax(prediction,1), tf.argmax(labels,1))
-accuracy = tf.reduce_mean(tf.cast(correctpred, tf.float32))
+correctPred = tf.equal(tf.argmax(prediction,1), tf.argmax(labels,1))
+accuracy = tf.reduce_mean(tf.cast(correctPred, tf.float32))
+
 
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=labels))
 optimizer = tf.train.AdamOptimizer().minimize(loss)
 
+tf.summary.scalar('Loss', loss)
+tf.summary.scalar('Accuracy', accuracy)
+merged = tf.summary.merge_all()
+logdir = "tensorboard/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "/"
+
 sess = tf.InteractiveSession()
+writer = tf.summary.FileWriter(logdir, sess.graph)
 saver = tf.train.Saver()
 sess.run(tf.global_variables_initializer())
 
 for i in range(iterations):
+   #Next Batch of reviews
+   nextBatch, nextBatchLabels = getTrainBatch();
 
-   #next batch
-    
-   nextbatch, nextbatchlabels = get_train_batch();
-   sess.run(optimizer, {input_data: nextbatch, labels: nextbatchlabels})
+   sess.run(optimizer, {input_data: nextBatch, labels: nextBatchLabels})
+   print("Epoch", i+1)
 
+   #Write summary to Tensorboard
+   if (i % 50 == 0):
+       summary = sess.run(merged, {input_data: nextBatch, labels: nextBatchLabels})
+       writer.add_summary(summary, i)
+
+   #Save the network every 10,000 training iterations
+   if (i % 10000 == 0 and i != 0):
+       save_path = saver.save(sess, "models/pretrained_lstm.ckpt", global_step=i)
+       print("saved to %s" % save_path)
+writer.close()
 

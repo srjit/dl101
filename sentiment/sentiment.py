@@ -174,8 +174,11 @@ for i in range(iterations):
    #Next Batch of reviews
    nextBatch, nextBatchLabels = getTrainBatch();
 
+
    import ipdb
    ipdb.set_trace()
+
+   
 
    sess.run(optimizer, {input_data: nextBatch, labels: nextBatchLabels})
    print("Epoch", i+1)
