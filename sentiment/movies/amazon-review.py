@@ -173,13 +173,17 @@ for i in range(iterations):
    print("Epoch", i+1)
 
    #Write summary to Tensorboard
-   if (i % 50 == 0):
-       summary = sess.run(merged, {input_data: nextBatch, labels: nextBatchLabels})
-       writer.add_summary(summary, i)
+   # if (i % 50 == 0):
+   #     summary = sess.run(merged, {input_data: nextBatch, labels: nextBatchLabels})
+   #     writer.add_summary(summary, i)
 
-   #Save the network every 10,000 training iterations
-   if (i % 10000 == 0 and i != 0):
-       save_path = saver.save(sess, "models/pretrained_lstm.ckpt", global_step=i)
-       print("saved to %s" % save_path)
+   # #Save the network every 10,000 training iterations
+   # if (i % 10000 == 0 and i != 0):
+   #     save_path = saver.save(sess, "models/pretrained_lstm.ckpt", global_step=i)
+   #     print("saved to %s" % save_path)
+
+       #
+
+       
 writer.close()
 
