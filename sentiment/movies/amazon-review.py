@@ -5,8 +5,16 @@ import numpy as np
 from functools import reduce
 import datetime
 
+import vectorutils
+
 #input_file = "train.ft.txt"
-input_file = "sample.txt"
+#input_file = "sample.txt"
+
+project = "bittlingmayer/amazonreviews"
+
+input_dir = "/home/sree/.kaggle/datasets/" + project
+input_file = input_dir + "/train.ft.txt"
+
 _vocabulary = set()
 lines = []
 
@@ -37,26 +45,21 @@ data = pd.DataFrame(lines, columns=headers)
 
 
 # we need the indices of words - so making it a list
-wordslist = list(_vocabulary)
-limit = len(wordslist)
-
-from gensim.models import Word2Vec
-model = word2vec.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
-
-invalid_words = []    
-def get_vector(word):
-    try:
-        return model[word]
-    except:
-        invalid_words.append(word)
-        return limit
-
-wordvectors = np.zeros([len(wordslist), 300], dtype=np.float32)
-
-for i, word in enumerate(wordslist):
-    wordvectors[i] = get_vector(word)
 
 # wordvectors = np.asarray([get_vector(word) for word in wordslist])
+
+# lets save the word vectors here
+word_vectors_location = input_dir + "/resources/word_vectors.npy" 
+if os.path.isfile(word_vectors_location):
+    wordvectors = vectorutils.load_word_vectors()
+else:
+    print("No word vectors found...calculating vectors from word2vec and saving it to resources...")
+
+    import ipdb
+    ipdb.set_trace()
+    
+    wordvectors = vectorutils.save_word_vectors(_vocabulary, project)
+    
 
 #remove model from memory
 import gc
