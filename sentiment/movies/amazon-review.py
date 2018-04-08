@@ -39,7 +39,7 @@ with open(input_file) as f:
 
 
 headers = ['review','sentiment']        
-data = pd.DataFrame(lines, columns=headers)
+_data = pd.DataFrame(lines, columns=headers)
 
 
 word_vectors_location = input_dir + "/resources/word_vectors.npy" 
@@ -78,22 +78,25 @@ def get_vectors_of_sentence(sentence):
 
 # build vocabulary now
 print("Vectorizing the words and encoding the sentences...")
-data["encoded_review"] = data["review"].apply(lambda x: get_vectors_of_sentence(x))
+_data["encoded_review"] = _data["review"].apply(lambda x: get_vectors_of_sentence(x))
 
 print("Setting the labels...")
-data["label"] = data["sentiment"].apply(lambda x: [1, 0] if x == '__label__2' else [0, 1])
+_data["label"] = _data["sentiment"].apply(lambda x: [1, 0] if x == '__label__2' else [0, 1])
 
 
 num_classes = 2
 word_vector_length = 300
 lstmunits = 64
-batch_size = 24
+batch_size = 100
 iterations = 100000
 numDimensions = 300
-input_size = 100
+input_size = len(_data)
 
 # helper functions
 from random import randint
+
+
+
 def get_train_batch():
 
     start_index = randint(0, input_size - batch_size)
@@ -101,8 +104,8 @@ def get_train_batch():
 
     arr = np.zeros([batch_size, sequence_len])
 
-    batch_X = (data['encoded_review'][start_index: end_index]).tolist()
-    batch_Y = data['label'][start_index: end_index]
+    batch_X = (_data['encoded_review'][start_index: end_index]).tolist()
+    batch_Y = _data['label'][start_index: end_index].tolist()
 
     for i in range(batch_size):
         arr[i] = batch_X[i]
@@ -111,7 +114,7 @@ def get_train_batch():
     
 
 #testing a sample of the encoded data
-sample, labels = get_train_batch()
+#sample, labels = get_train_batch()
 
 
 import tensorflow as tf
@@ -123,8 +126,6 @@ input_data = tf.placeholder(tf.int32, [batch_size, sequence_len])
 data = tf.Variable(tf.zeros([batch_size, sequence_len, numDimensions]),dtype=tf.float32)
 data = tf.nn.embedding_lookup(wordvectors,input_data)
 
-import ipdb
-ipdb.set_trace()
 
 #lstm layer
 lstm_cell = tf.contrib.rnn.BasicLSTMCell(lstmunits)
@@ -156,23 +157,21 @@ saver = tf.train.Saver()
 sess.run(tf.global_variables_initializer())
 
 for i in range(iterations):
-   #Next Batch of reviews
-   nextBatch, nextBatchLabels = getTrainBatch();
+   # Next Batch of reviews
+   nextBatch, nextBatchLabels = get_train_batch();
 
    sess.run(optimizer, {input_data: nextBatch, labels: nextBatchLabels})
    print("Epoch", i+1)
 
-   #Write summary to Tensorboard
-   # if (i % 50 == 0):
-   #     summary = sess.run(merged, {input_data: nextBatch, labels: nextBatchLabels})
-   #     writer.add_summary(summary, i)
+   # Write summary to Tensorboard
+   if (i % 50 == 0):
+       summary = sess.run(merged, {input_data: nextBatch, labels: nextBatchLabels})
+       writer.add_summary(summary, i)
 
-   # #Save the network every 10,000 training iterations
-   # if (i % 10000 == 0 and i != 0):
-   #     save_path = saver.save(sess, "models/pretrained_lstm.ckpt", global_step=i)
-   #     print("saved to %s" % save_path)
-
-       #
+   #Save the network every 10,000 training iterations
+   if (i % 10000 == 0 and i != 0):
+       save_path = saver.save(sess, "models/pretrained_lstm.ckpt", global_step=i)
+       print("saved to %s" % save_path)
 
        
 writer.close()
