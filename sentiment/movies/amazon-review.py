@@ -1,25 +1,30 @@
 import pandas as pd
-import gensim.models.keyedvectors as word2vec
 import string
 import numpy as np
-from functools import reduce
 import datetime
-
+import os
 import vectorutils
 
-#input_file = "train.ft.txt"
-#input_file = "sample.txt"
 
 project = "bittlingmayer/amazonreviews"
 
+
 input_dir = "/home/sree/.kaggle/datasets/" + project
-input_file = input_dir + "/train.ft.txt"
+input_file = input_dir + "/train_head.txt"
 
-_vocabulary = set()
+
+word_list_location = input_dir + "/resources/wordlist.txt"
+
+if os.path.isfile(word_list_location):
+    print("loading file from " + word_list_location)
+    vocabulary = vectorutils.load_word_list(project)
+else:    
+    vocabulary = vectorutils.save_word_list(input_file, project)
+
+print("Length of vocabulary:",len(vocabulary))
+
 lines = []
-
-lengths = []
-
+count = 0
 with open(input_file) as f:
     for line in f:
         sentiment = line.split(" ")[0]
@@ -28,71 +33,54 @@ with open(input_file) as f:
         translator=str.maketrans('','',string.punctuation)
         plane_string = review.lower().translate(translator)
         
-        words = plane_string.split()
-        lengths.append(len(words))
-        _vocabulary = _vocabulary.union(words)
         lines.append([plane_string, sentiment])
-
-
-mean_length = reduce(lambda x, y: x + y, lengths) / len(lengths)
-max_length = max(lengths)
-median_length = np.median(lengths)
+        print(count)
+        count+=1
 
 
 headers = ['review','sentiment']        
 data = pd.DataFrame(lines, columns=headers)
 
 
-# we need the indices of words - so making it a list
-
-# wordvectors = np.asarray([get_vector(word) for word in wordslist])
-
-# lets save the word vectors here
 word_vectors_location = input_dir + "/resources/word_vectors.npy" 
 if os.path.isfile(word_vectors_location):
-    wordvectors = vectorutils.load_word_vectors()
+    print("Loading word vectors...")
+    wordvectors, invalid_words = vectorutils.load_word_vectors(project)
 else:
     print("No word vectors found...calculating vectors from word2vec and saving it to resources...")
 
-    import ipdb
-    ipdb.set_trace()
-    
-    wordvectors = vectorutils.save_word_vectors(_vocabulary, project)
+    wordvectors, invalid_words = vectorutils.save_word_vectors(vocabulary, project)
     
 
-#remove model from memory
 import gc
-del model
 gc.collect()
 
-# we have to remove invalid words from going into tf.embedding_lookup 's sentence input
 
 
 sequence_len = 150
-# testing for one file
-
-#create wordvectors for every word in the vocabulary using word2vec and keep it in an array
 def get_vectors_of_sentence(sentence):
     def get_index(word):
         if word in invalid_words:
-            return len(wordslist)
+            return len(vocabulary)
         try:
-            return wordslist.index(word)
+            return vocabulary.index(word)
         except:
-            return len(wordslist)
+            return len(vocabulary)
     
     words = sentence.split()
     doc_vec = np.zeros(sequence_len)
     sequence =  [get_index(word) for word in words][:sequence_len]
     if(len(sequence) < sequence_len):
         sequence[len(sequence):sequence_len] = [0] * (sequence_len - len(sequence))
-
+    
     return np.asarray(sequence)
 
 
 # build vocabulary now
+print("Vectorizing the words and encoding the sentences...")
 data["encoded_review"] = data["review"].apply(lambda x: get_vectors_of_sentence(x))
 
+print("Setting the labels...")
 data["label"] = data["sentiment"].apply(lambda x: [1, 0] if x == '__label__2' else [0, 1])
 
 
