@@ -11,7 +11,7 @@ project = "bittlingmayer/amazonreviews"
 
 input_dir = "/home/sree/.kaggle/datasets/" + project
 input_file = input_dir + "/train_head.txt"
-
+test_file = input_dir + "/test.txt"
 
 word_list_location = input_dir + "/resources/wordlist.txt"
 
@@ -84,6 +84,35 @@ print("Setting the labels...")
 _data["label"] = _data["sentiment"].apply(lambda x: [1, 0] if x == '__label__2' else [0, 1])
 
 
+
+
+# get the test data
+lines = []
+count = 0
+with open(test_file) as f:
+    for line in f:
+        sentiment = line.split(" ")[0]
+        review = line.replace(sentiment, "").strip()
+
+        translator=str.maketrans('','',string.punctuation)
+        plane_string = review.lower().translate(translator)
+        
+        lines.append([plane_string, sentiment])
+        print(count)
+        count+=1
+
+headers = ['review','sentiment']        
+test_data = pd.DataFrame(lines, columns=headers)
+
+print("Encoding and setting labels for test_data")
+test_data["encoded_review"] = test_data["review"].apply(lambda x: get_vectors_of_sentence(x))
+test_data["label"] = test_data["sentiment"].apply(lambda x: [1, 0] if x == '__label__2' else [0, 1])
+
+
+
+
+
+
 num_classes = 2
 word_vector_length = 300
 lstmunits = 64
@@ -94,9 +123,6 @@ input_size = len(_data)
 
 # helper functions
 from random import randint
-
-
-
 def get_train_batch():
 
     start_index = randint(0, input_size - batch_size)
@@ -115,6 +141,15 @@ def get_train_batch():
 
 #testing a sample of the encoded data
 #sample, labels = get_train_batch()
+
+print("Test data for checking accuracy...")
+_test_X = test_data['encoded_review'].tolist()
+test_Y = test_data['label'].tolist()
+test_X = np.zeros([len(_test_X), sequence_len])
+for i in range(len(_test_X)):
+    test_X[i] = _test_X[i]
+    
+
 
 
 import tensorflow as tf
