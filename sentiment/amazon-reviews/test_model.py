@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tqdm import tqdm, tqdm_pandas
 import pandas as pd
 import string
@@ -6,16 +7,25 @@ import datetime
 import os
 import vectorutils
 
+from functools import reduce
+
+
+__author__ = "Sreejith Sreekumar"
+__email__ = "sreekumar.s@husky.neu.edu"
+__version__ = "0.0.1"
+
+
+
+
 tqdm.pandas(tqdm())
 
 project = "bittlingmayer/amazonreviews"
 
 
 input_dir = "/home/sree/.kaggle/datasets/" + project
-input_file = input_dir + "/train.txt"
+input_file = input_dir + "/test.txt"
 
-#input_file = input_dir + "/train_head.txt"
-#test_file = input_dir + "/test.txt"
+
 
 word_list_location = input_dir + "/resources/wordlist.txt"
 
@@ -89,43 +99,10 @@ print("Setting the labels...")
 _data["label"] = _data["sentiment"].apply(lambda x: [1, 0] if x == '__label__2' else [0, 1])
 
 
-import pickle
-
-with open("data.bin","wb") as f:
-    pickle.dump(_data, f)
-
-
-#load vectorized data    
-with open("data.bin","rb") as f:
-    _data = pickle.load(f)
-    
-
-# get the test data
-# lines = []
-# count = 0
-# with open(test_file) as f:
-#     for line in f:
-#         sentiment = line.split(" ")[0]
-#         review = line.replace(sentiment, "").strip()
-
-#         translator=str.maketrans('','',string.punctuation)
-#         plane_string = review.lower().translate(translator)
-        
-#         lines.append([plane_string, sentiment])
-#         print(count)
-#         count+=1
-
-# headers = ['review','sentiment']        
-# test_data = pd.DataFrame(lines, columns=headers)
-
-# print("Encoding and setting labels for test_data")
-# test_data["encoded_review"] = test_data["review"].apply(lambda x: get_vectors_of_sentence(x))
-# test_data["label"] = test_data["sentiment"].apply(lambda x: [1, 0] if x == '__label__2' else [0, 1])
 
 
 
-
-
+print("Loaded test data...")
 
 num_classes = 2
 word_vector_length = 300
@@ -135,39 +112,10 @@ iterations = 100000
 numDimensions = 300
 input_size = len(_data)
 
-# helper functions
-from random import randint
 
-def get_train_batch():
 
-    start_index = randint(0, input_size - batch_size)
-    end_index = start_index + batch_size
-    print("Next batch to train starting index: ", start_index)
 
-    arr = np.zeros([batch_size, sequence_len])
-
-    batch_X = (_data['encoded_review'][start_index: end_index]).tolist()
-    batch_Y = _data['label'][start_index: end_index].tolist()
-
-    for i in range(batch_size):
-        arr[i] = batch_X[i]
-
-    return arr, batch_Y
-    
-
-#testing a sample of the encoded data
-#sample, labels = get_train_batch()
-
-# print("Test data for checking accuracy...")
-# _test_X = test_data['encoded_review'].tolist()
-# test_Y = test_data['label'].tolist()
-# test_X = np.zeros([len(_test_X), sequence_len])
-# for i in range(len(_test_X)):
-#     test_X[i] = _test_X[i]
-    
-
-print("Beginning to train the neural net...")
-
+print("Creating the same neural network...")
 import tensorflow as tf
 tf.reset_default_graph()
 
@@ -194,36 +142,48 @@ correctPred = tf.equal(tf.argmax(prediction,1), tf.argmax(labels,1))
 accuracy = tf.reduce_mean(tf.cast(correctPred, tf.float32))
 
 
-loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=labels))
-optimizer = tf.train.AdamOptimizer().minimize(loss)
-
-tf.summary.scalar('Loss', loss)
-tf.summary.scalar('Accuracy', accuracy)
-merged = tf.summary.merge_all()
-logdir = "tensorboard/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "/"
 
 sess = tf.InteractiveSession()
-writer = tf.summary.FileWriter(logdir, sess.graph)
 saver = tf.train.Saver()
-sess.run(tf.global_variables_initializer())
+saver.restore(sess, tf.train.latest_checkpoint('models'))
 
-for i in range(iterations):
-   # Next Batch of reviews
-   nextBatch, nextBatchLabels = get_train_batch();
 
-   sess.run(optimizer, {input_data: nextBatch, labels: nextBatchLabels})
-   print("Epoch :", i+1)
+predictions = []
 
-   # Write summary to Tensorboard
-   if (i % 500 == 0):
-       summary = sess.run(merged, {input_data: nextBatch, labels: nextBatchLabels})
-       writer.add_summary(summary, i)
 
-   #Save the network every 10,000 training iterations
-   if (i % 1000 == 0 and i != 0):
-       save_path = saver.save(sess, "models/pretrained_lstm.ckpt", global_step=i)
-       print("saved to %s" % save_path)
+def get_test_batch(start_index):
 
-       
-writer.close()
+    end_index = start_index + 1000
+    print("Next batch to train starting index: ", start_index)
 
+    arr = np.zeros([batch_size, sequence_len])
+
+    batch_X = (_data['encoded_review'][start_index: end_index]).tolist()
+    batch_Y = _data['label'][start_index: end_index].tolist()
+
+    for i in range(batch_size):
+        arr[i] = batch_X[i]
+
+    return arr, batch_Y
+
+
+accuracies_of_batches = []
+for  start_index in range(0, 2000, 1000):
+    test_batch, actuals = get_test_batch(start_index)
+    predictedSentiment = sess.run(prediction, {input_data: test_batch}).tolist()
+
+    predictions = [1 if a > b else 0 for [a,b] in predictedSentiment]
+    _actuals = [a for [a,b] in actuals]
+
+    correctness = [1 if predictions[i] == _actuals[i] else 0 for i in range(len(_actuals))]
+    accuracy = float(sum(correctness))/len(correctness)
+
+    
+    print("Accuracy of test_batch: ", accuracy)
+    accuracies_of_batches.append(accuracy)
+
+
+
+accuracy = reduce(lambda x, y: x + y, accuracies_of_batches) / len(accuracies_of_batches)
+print("Final accuracy of test data:", accuracy)
+    
